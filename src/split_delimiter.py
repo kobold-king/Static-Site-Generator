@@ -16,6 +16,11 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             textnode_list.append(node)
             continue
 
+         # Handle empty text nodes (short-circuit)
+        if not node.text:
+            textnode_list.append(node)  # Append as-is and move on
+            continue
+
         extra_list = recursive_delimiter_finder(node.text, delimiter, text_type)
         textnode_list.extend(extra_list)
 
@@ -24,7 +29,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 def recursive_delimiter_finder(text, delimiter, text_type, wip_list=None):
     result = wip_list or []
     #check if text is now empty
-    if not text:
+    if text == "":
         return result  # No more work to do, just return the list
 
         #check to see if anymore delimiters exist in text
@@ -42,9 +47,12 @@ def recursive_delimiter_finder(text, delimiter, text_type, wip_list=None):
     # If the first part is not empty, append it as plain text
     if split_text[0]:
         result.append(TextNode(split_text[0], TextType.TEXT))
+    else:
+        # If it is empty, we still need to handle the empty text node
+        result.append(TextNode("", TextType.TEXT))
 
     # Append the part inside the delimiters with its special type
     result.append(TextNode(split_text[1], text_type))
 
-    # Recurse on the remaining part of the string
+    # If the remaining text exists, even if empty, recurse on it
     return recursive_delimiter_finder(split_text[2], delimiter, text_type, result)

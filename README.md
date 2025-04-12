@@ -37,4 +37,4 @@ The vast majority of our coding will happen in the src/ directory because almost
             Raw markdown -> TextNode -> HTMLNode
         4. Join all the HTMLNode blocks under one large parent HTMLNode for the pages.
         5. Use a recursive to_html() method to convert the HTMLNode and all its nested nodes to a giant HTML string and inject it in the HTML template.
-        6. Write the full HTML string to a file for that page in the /public directory.e
+        6. Write the full HTML string to a file for that page in the /public directory.ee

@@ -25,22 +25,27 @@ def block_to_block_type(block):
             return BlockType.CODE
 
     if len(matches) != 0:
+        lines = block.split("\n")
+        for line in lines:
+            if not line.startswith(">"):
+                return BlockType.PARAGRAPH
         return BlockType.QUOTE
 
     if "- " in block:
         split_block = block.split("\n")
         for line in split_block:
-            if "- " not in line:
+            if not line.startswith("- "):
                 return BlockType.PARAGRAPH
                 break
         return BlockType.UNLIST
 
-    if ". " in block:
-        split_block = block.split("\n")
-        for line in split_block:
-            if ". " not in line:
+    if block.startswith("1. "):
+        i = 1
+        lines = block.split("\n")
+        for line in lines:
+            if not line.startswith(f"{i}. "):
                 return BlockType.PARAGRAPH
-                break
+            i += 1
         return BlockType.OLIST
 
     return BlockType.PARAGRAPH

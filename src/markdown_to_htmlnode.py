@@ -14,7 +14,7 @@ def markdown_to_html_node(markdown):
         blocktype = block_to_block_type(block)
         html_node_list.append(block_to_html_node(block, blocktype))
 
-    return ParentNode("div", [html_node_list])
+    return ParentNode("div", html_node_list)
 
 def block_to_html_node(block, blocktype):
     #strip the markdown text so it doesn't show in the html
@@ -24,11 +24,12 @@ def block_to_html_node(block, blocktype):
             count = header.count("#")
             return ParentNode(f"h{count}", text_to_htmlnode(block))
         case BlockType.QUOTE:
-                pass
+            block.strip(">")
+            return ParentNode("blockquote", text_to_htmlnode(block))
         case BlockType.UNLIST:
-            pass
+            return ParentNode("ul", text_to_htmlnode(block))
         case BlockType.OLIST:
-            pass
+            return ParentNode("ol", text_to_htmlnode(block))
         case BlockType.CODE:
             pass
         case BlockType.PARAGRAPH:
@@ -38,6 +39,13 @@ def text_to_htmlnode(text):
     text_nodes = text_to_textnodes(text)
     children_nodes = [text_node_to_html_node(node) for node in text_nodes]
     return children_nodes
+
+def text_to_list_nodes(list, type):
+    list_lines = list.splitlines()
+    nodes = []
+    for lines in list_lines:
+        nodes.append(ParentNode("li", text_to_htmlnode(lines)))
+    return nodes
 
 
 #take text in block and create textnodes  -  text_to_textnodes

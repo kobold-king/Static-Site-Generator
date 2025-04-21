@@ -1,4 +1,4 @@
-from htmlnode import ParentNode, LeafNode
+from htmlnode import ParentNode
 from blocktype_block_to_block import block_to_block_type, BlockType
 from textnode import TextType, TextNode, text_node_to_html_node
 from split_blocks import markdown_to_blocks
@@ -31,9 +31,29 @@ def block_to_html_node(block, blocktype):
         case BlockType.OLIST:
             return ParentNode("ol", text_to_htmlnode(block))
         case BlockType.CODE:
-            pass
+            # Extract text for code block
+            # Assuming the format is "```\ncode content\n```"
+            lines = block.split("\n")
+            # Remove the first and last lines (the ones with ```)
+            code_content = "\n".join(lines[1:-1])
+
+            # Make sure there's a trailing newline
+            if not code_content.endswith("\n"):
+                code_content += "\n"
+
+            # Create nodes
+            text_node = TextNode(code_content, TextType.TEXT)
+            html_node = text_node_to_html_node(text_node)
+            code_node = ParentNode("code", [html_node])
+            pre_node = ParentNode("pre", [code_node])
+            return pre_node
         case BlockType.PARAGRAPH:
-            return ParentNode('p', text_to_htmlnode(block))
+            # Replace newlines with spaces for paragraph text
+            text = block.replace("\n", " ")
+            # Create children nodes with inline markdown parsing
+            #children = text_to_children(text)
+            return ParentNode("p", text_to_htmlnode(text))
+
 
 def text_to_htmlnode(text):
     text_nodes = text_to_textnodes(text)

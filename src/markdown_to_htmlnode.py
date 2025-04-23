@@ -74,3 +74,11 @@ def text_to_list_nodes(list, type):
 #all blocks are placed into 1 last parent block with div
 
     #return ParentNode("div", blocknodes)
+
+def extract_title(markdown):
+        markdown_copy = markdown.copy()
+
+        #extract Header fromm markdown_to_blocks
+            #Turn into lines, find "# " in the line, strip "# "
+        #else:
+            #raise Exception("Missing h1 header")

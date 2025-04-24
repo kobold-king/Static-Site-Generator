@@ -3,6 +3,7 @@ from blocktype_block_to_block import block_to_block_type, BlockType
 from textnode import TextType, TextNode, text_node_to_html_node
 from split_blocks import markdown_to_blocks
 from text_to_textnode import text_to_textnodes
+import re
 
 
 def markdown_to_html_node(markdown):
@@ -76,9 +77,9 @@ def text_to_list_nodes(list, type):
     #return ParentNode("div", blocknodes)
 
 def extract_title(markdown):
-        markdown_copy = markdown.copy()
-
-        #extract Header fromm markdown_to_blocks
-            #Turn into lines, find "# " in the line, strip "# "
-        #else:
-            #raise Exception("Missing h1 header")
+    lines = markdown.splitlines()
+    for line in lines:
+        line = line.strip()  # Remove leading/trailing whitespace
+        if line.startswith("#") and len(line) > 1 and line[1] == " ":
+            return line[2:].strip()
+    raise Exception("No h1 header found in markdown")

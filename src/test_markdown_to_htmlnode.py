@@ -1,6 +1,6 @@
 import unittest
 
-from markdown_to_htmlnode import markdown_to_html_node
+from markdown_to_htmlnode import markdown_to_html_node, extract_title
 
 class TestMDtoHTMLnode(unittest.TestCase):
     def test_paragraphs(self):
@@ -35,6 +35,27 @@ class TestMDtoHTMLnode(unittest.TestCase):
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
         )
 
+    def test_extract_title_1(self):
+        md = """
+    # This is a level 1 header
+    """
+        text = extract_title(md)
+        self.assertEqual(
+            text,
+            "This is a level 1 header",
+        )
 
+    def test_extract_title_2(self):
+        md = """
+        # This is a level 1 header
+        ## This is a level 2 header
+        This is a normal line.
+        ### This is a level 3 header
+        """
+        text = extract_title(md)
+        self.assertEqual(
+            text,
+            "This is a level 1 header",
+        )
 if __name__ == "__main__":
     unittest.main()

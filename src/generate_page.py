@@ -2,9 +2,7 @@ from markdown_to_htmlnode import extract_title, markdown_to_html_node
 import os
 
 def generate_page(from_path, template_path, dest_path):
-    fpath = from_path
-    tpath = template_path
-    dpath = dest_path
+
 
     print(f"Generating page from {fpath} to {dpath} using {tpath}.")
 

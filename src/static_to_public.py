@@ -1,17 +1,14 @@
 import os, shutil
 
-def static_to_public(folder_path):
-    folder_path = "/home/deck/boot.dev/github.com/kobold-king/Static-Site-Generator/public/"
-    #deletes content in public folder
-    for file_object in os.listdir(folder_path):
-        #joins the file name to the pre-existing file path
-        file_object_path = os.path.join(folder_path, file_object)
-        if os.path.isfile(file_object_path) or os.path.islink(file_object_path):
-            os.unlink(file_object_path)
+def static_to_public(source_dir_path, dest_dir_path):
+    if not os.path.exists(dest_dir_path):
+        os.mkdir(dest_dir_path)
+
+    for filename in os.listdir(source_dir_path):
+        from_path = os.path.join(source_dir_path, filename)
+        dest_path = os.path.join(dest_dir_path, filename)
+        print(f" * {from_path} -> {dest_path}")
+        if os.path.isfile(from_path):
+            shutil.copy(from_path, dest_path)
         else:
-            shutil.rmtree(file_object_path)
-
-    source_folder = "/home/deck/boot.dev/github.com/kobold-king/Static-Site-Generator/static/"
-    destination = folder_path
-
-    shutil.copytree(source_folder, destination, dirs_exist_ok=True)
+            static_to_public(from_path, dest_path)

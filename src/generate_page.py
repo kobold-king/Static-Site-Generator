@@ -1,32 +1,46 @@
-from markdown_to_htmlnode import extract_title, markdown_to_html_node
 import os
+from markdown_to_htmlnode import markdown_to_html_node
+from pathlib import Path
+
 
 def generate_page(from_path, template_path, dest_path):
+    print(f" * {from_path} {template_path} -> {dest_path}")
+    from_file = open(from_path, "r")
+    markdown_content = from_file.read()
+    from_file.close()
 
+    template_file = open(template_path, "r")
+    template = template_file.read()
+    template_file.close()
 
-    print(f"Generating page from {fpath} to {dpath} using {tpath}.")
-
-    #Read the markdown file at from_path and store the contents in a variable.
-    index = open(fpath, 'r').read()
-    #Read the template file at template_path and store the contents in a variable.
-    template = open(tpath, 'r').read()
-
-    node = markdown_to_html_node(index)
+    node = markdown_to_html_node(markdown_content)
     html = node.to_html()
-    title = extract_title(index)
 
-    #Replace the {{ Title }} and {{ Content }} placeholders in the template with the HTML and title you generated.
-    updated_template = replace_lines(template, title, html)
+    title = extract_title(markdown_content)
+    template = template.replace("{{ Title }}", title)
+    template = template.replace("{{ Content }}", html)
 
-    # Construct the full file path
-    file_path = os.path.join(dpath, "index.html")
+    dest_dir_path = os.path.dirname(dest_path)
+    if dest_dir_path != "":
+        os.makedirs(dest_dir_path, exist_ok=True)
+    to_file = open(dest_path, "w")
+    to_file.write(template)
 
-    # Write the variable to the file
-    with open(file_path, 'w') as file:
-        file.write(updated_template)
+
+def extract_title(md):
+    lines = md.split("\n")
+    for line in lines:
+        if line.startswith("# "):
+            return line[2:]
+    raise ValueError("no title found")
 
 
-def replace_lines(template, title, html):
-    change_1 = template.replace("{{ Title }}", title)
-    change_2 = change_1.replace("{{ Content }}", html)
-    return change_2
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    for filename in os.listdir(dir_path_content):
+        from_path = os.path.join(dir_path_content, filename)
+        dest_path = os.path.join(dest_dir_path, filename)
+        if os.path.isfile(from_path):
+            dest_path = Path(dest_path).with_suffix(".html")
+            generate_page(from_path, template_path, dest_path)
+        else:
+            generate_pages_recursive(from_path, template_path, dest_path)

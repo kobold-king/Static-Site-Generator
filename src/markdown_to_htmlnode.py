@@ -3,7 +3,7 @@ from blocktype_block_to_block import block_to_block_type, BlockType
 from textnode import TextType, TextNode, text_node_to_html_node
 from split_blocks import markdown_to_blocks
 from text_to_textnode import text_to_textnodes
-import re
+
 
 
 def markdown_to_html_node(markdown):
@@ -21,16 +21,25 @@ def block_to_html_node(block, blocktype):
     #strip the markdown text so it doesn't show in the html
     match(blocktype):
         case BlockType.HEADING:
-            header, text = block.split(maxsplit=1)
-            count = header.count("#")
-            return ParentNode(f"h{count}", text_to_htmlnode(block))
+            return heading_to_html_node(block)
         case BlockType.QUOTE:
-            block.strip(">")
-            return ParentNode("blockquote", text_to_htmlnode(block))
+            return quote_to_html_node(block)
         case BlockType.UNLIST:
-            return ParentNode("ul", text_to_htmlnode(block))
+            items = block.split("\n")
+            html_items = []
+            for item in items:
+                text = item[2:]
+                children = text_to_htmlnode(text)
+                html_items.append(ParentNode("li", children))
+            return ParentNode("ul", html_items)
         case BlockType.OLIST:
-            return ParentNode("ol", text_to_htmlnode(block))
+            items = block.split("\n")
+            html_items = []
+            for item in items:
+                text = item[3:]
+                children = text_to_htmlnode(text)
+                html_items.append(ParentNode("li", children))
+            return ParentNode("ol", html_items)
         case BlockType.CODE:
             # Extract text for code block
             # Assuming the format is "```\ncode content\n```"
@@ -61,25 +70,32 @@ def text_to_htmlnode(text):
     children_nodes = [text_node_to_html_node(node) for node in text_nodes]
     return children_nodes
 
-def text_to_list_nodes(list, type):
-    list_lines = list.splitlines()
-    nodes = []
-    for lines in list_lines:
-        nodes.append(ParentNode("li", text_to_htmlnode(lines)))
-    return nodes
+def heading_to_html_node(block):
+    level = 0
+    for char in block:
+        if char == "#":
+            level += 1
+        else:
+            break
+    if level + 1 >= len(block):
+        raise ValueError(f"invalid heading level: {level}")
+    text = block[level + 1 :]
+    children = text_to_htmlnode(text)
+    return ParentNode(f"h{level}", children)
 
-
+def quote_to_html_node(block):
+    lines = block.split("\n")
+    new_lines = []
+    for line in lines:
+        if not line.startswith(">"):
+            raise ValueError("invalid quote block")
+        new_lines.append(line.lstrip(">").strip())
+    content = " ".join(new_lines)
+    children = text_to_htmlnode(content)
+    return ParentNode("blockquote", children)
 #take text in block and create textnodes  -  text_to_textnodes
 #take the text nodes and convert them to leafnodes  -  text_node_to_html_node
 #leafnodes are placed in a parent node for that block
 #all blocks are placed into 1 last parent block with div
 
     #return ParentNode("div", blocknodes)
-
-def extract_title(markdown):
-    lines = markdown.splitlines()
-    for line in lines:
-        line = line.strip()  # Remove leading/trailing whitespace
-        if line.startswith("#") and len(line) > 1 and line[1] == " ":
-            return line[2:].strip()
-    raise Exception("No h1 header found in markdown")

@@ -1,6 +1,7 @@
 import unittest
 
-from markdown_to_htmlnode import markdown_to_html_node, extract_title
+from markdown_to_htmlnode import markdown_to_html_node
+from generate_page import extract_title
 
 class TestMDtoHTMLnode(unittest.TestCase):
     def test_paragraphs(self):
